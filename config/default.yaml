@@ -1,0 +1,63 @@
+data:
+  train: Data/vpesg4k_train_1000 V1.csv
+  validation: Data/vpesg4k_val_1000.csv
+  test: Data/vpesg4k_test_2000.csv
+  sample_submission: Data/sample_submission_format.csv
+
+paths:
+  baseline_predictions: experiments/dual_source_baseline/predictions
+  source_predictions: experiments/predictions
+  semantic_multitask: experiments/semantic_multitask
+  semantic_bge: experiments/semantic_bge
+  lexical_tfidf: experiments/lexical_tfidf
+  output: outputs/promise_verification_submission.csv
+
+runtime:
+  seed: 42
+  device: auto
+  log_level: INFO
+  cache_policy: auto
+
+training:
+  max_length: 512
+  batch_size: 2
+  eval_batch_size: 8
+  accumulation_steps: 4
+  learning_rate: 0.00001
+  max_class_weight: 4.0
+  gradient_checkpointing: true
+  semantic_multitask_epochs: 4
+
+blend:
+  baseline_full_weight: 0.8
+  promise_status:
+    baseline: 0.60
+    semantic_multitask: 0.25
+    extra: 0.15
+  evidence_status:
+    baseline: 0.60
+    semantic_multitask: 0.05
+    extra: 0.35
+  evidence_quality:
+    baseline: 1.00
+    semantic_multitask: 0.00
+    extra: 0.00
+  verification_timeline:
+    baseline: 0.70
+    semantic_multitask: 0.10
+    extra: 0.20
+
+lexical_tfidf:
+  evidence_status:
+    model_name: char36_svc
+    ngram_min: 3
+    ngram_max: 6
+  verification_timeline:
+    model_name: char25_svc
+    ngram_min: 2
+    ngram_max: 5
+
+semantic_bge:
+  model_name: BAAI/bge-m3
+  logistic_c: 10.0
+  local_files_only: true

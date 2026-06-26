@@ -1,0 +1,4 @@
+extends: config/default.yaml
+
+runtime:
+  cache_policy: auto

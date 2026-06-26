@@ -1,0 +1,18 @@
+{
+  "promise_status": {
+    "macro_f1": 0.8147418023247528,
+    "best_epoch": 4
+  },
+  "evidence_status": {
+    "macro_f1": 0.7833604737231681,
+    "best_epoch": 5
+  },
+  "evidence_quality": {
+    "macro_f1": 0.4802069275753486,
+    "best_epoch": 6
+  },
+  "verification_timeline": {
+    "macro_f1": 0.6553188423540287,
+    "best_epoch": 6
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "promise_status": {
+    "macro_f1": 0.7831978319783198,
+    "best_epoch": 5
+  },
+  "evidence_status": {
+    "macro_f1": 0.7420100639194886,
+    "best_epoch": 6
+  }
+}

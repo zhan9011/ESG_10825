@@ -1,0 +1,10 @@
+{
+  "promise_status": {
+    "macro_f1": 0.8157335223245925,
+    "best_epoch": 4
+  },
+  "verification_timeline": {
+    "macro_f1": 0.616815853410304,
+    "best_epoch": 4
+  }
+}

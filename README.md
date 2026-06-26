@@ -5,7 +5,8 @@
 ## 1. 任務與輸出格式
 
 競賽要求輸出 5 個欄位：
-```
+
+```text
 id,promise_status,verification_timeline,evidence_status,evidence_quality
 ```
 
@@ -52,7 +53,8 @@ project_root/
 建議環境：
 
 | 項目 | 建議 |
-| OS | Windows 10/11|
+|---|---|
+| OS | Windows 10/11 |
 | Python | 3.11 到 3.13 |
 | GPU | 完整重訓 Transformer 建議使用 NVIDIA GPU |
 | CPU | 可執行資料檢查、TF-IDF 重算、已存在 cache 的推論 |
@@ -60,6 +62,7 @@ project_root/
 
 主要套件列於 `requirements.txt`：
 
+```text
 numpy
 pandas
 scikit-learn
@@ -70,29 +73,40 @@ safetensors
 sentencepiece
 accelerate
 pyyaml
+```
 
 ## 4. Hugging Face 模型
 
 完整訓練會用到下列 pretrained models：
 
+```text
 microsoft/mdeberta-v3-base
 hfl/chinese-roberta-wwm-ext
 hfl/chinese-roberta-wwm-ext-large
 hfl/chinese-macbert-large
 BAAI/bge-m3
+```
 
 本機 cache 方式載入 `BAAI/bge-m3`。若本機沒有模型，請先在可連網環境下載到 Hugging Face cache。
 
 可選環境變數可參考 `.env.example`：
 
+```text
+HF_HOME=
+TRANSFORMERS_CACHE=
+CUDA_VISIBLE_DEVICES=
+```
+
 ## 5. 資料放置方式
 
 請在專案根目錄建立或保留 `Data/`，並放入以下檔案：
 
+```text
 Data/vpesg4k_train_1000 V1.csv
 Data/vpesg4k_val_1000.csv
 Data/vpesg4k_test_2000.csv
 Data/sample_submission_format.csv
+```
 
 預設路徑定義於 `config/default.yaml`
 
@@ -101,14 +115,17 @@ Data/sample_submission_format.csv
 ## 6. 設定檔
 
 主要設定：
+
+```text
 config/default.yaml
 config/train.yaml
 config/inference.yaml
-
+```
 
 設定分工：
 
 | 設定 | 用途 |
+|---|---|
 | `data.*` | train、validation、test、sample submission 路徑 |
 | `paths.baseline_predictions` | dual-source baseline artifacts |
 | `paths.source_predictions` | baseline 訓練原始輸出 |
@@ -123,17 +140,20 @@ config/inference.yaml
 | `lexical_tfidf.*` | TF-IDF ngram 設定 |
 | `semantic_bge.*` | BGE 模型與 logistic regression 設定 |
 
-
 ## 7. 重要模組輸入與輸出
 
 ### 7.1 前處理
 
 位置：
 
+```text
 src/preprocessing/
+```
 
 主要功能：
+
 | 檔案 | 功能 | 輸入 | 輸出 |
+|---|---|---|---|
 | `loaders.py` | 讀取 labeled/unlabeled data | CSV 路徑 | `pandas.DataFrame` |
 | `transforms.py` | 共同文字格式轉換 | DataFrame row | 模型輸入文字 |
 | `validators.py` | submission 格式驗證 | submission DataFrame、expected ids | 無錯誤表示通過 |
@@ -141,7 +161,10 @@ src/preprocessing/
 ### 7.2 Dual-source Baseline
 
 入口：
+
+```text
 dual_source_baseline_pipeline.py
+```
 
 用途：
 
@@ -152,102 +175,155 @@ dual_source_baseline_pipeline.py
 
 輸入：
 
+```text
 Data/vpesg4k_train_1000 V1.csv
 Data/vpesg4k_val_1000.csv
 Data/vpesg4k_test_2000.csv
+```
 
 重要輸出：
 
+```text
 experiments/predictions/full/<model_key>/<task>.npz
 experiments/predictions/train_only/<model_key>/<task>.npz
 experiments/dual_source_baseline/predictions/full/<model_key>/<task>.npz
 experiments/dual_source_baseline/predictions/train_only/<model_key>/<task>.npz
 outputs/dual_source_baseline_retrained.csv
+```
 
 `.npz` 內容：
+
+```text
 key: target
 shape: (測試資料筆數, 該任務類別數)
+```
 
 ### 7.3 Semantic Multitask
 
 位置：
+
+```text
 src/training/semantic_multitask.py
+```
 
 用途：
+
 - 使用同一個 Transformer encoder
 - 接四個 task heads
 - 對四個任務同時輸出機率
 
 輸入：
+
+```text
 train + validation labeled data
 test unlabeled data
+```
 
 重要輸出：
+
+```text
 experiments/semantic_multitask/submission/target.npz
+```
 
 `.npz` 內容：
+
+```text
 keys:
   promise_status
   evidence_status
   evidence_quality
   verification_timeline
+```
 
 ### 7.4 Semantic BGE
 
 位置：
+
+```text
 src/training/pipeline.py::train_semantic_bge
+```
 
 用途：
+
 - 使用 `BAAI/bge-m3` 產生文本 embedding
 - 以 logistic regression 補強 `promise_status`
 
 輸入：
+
+```text
 train + validation labeled data
 test unlabeled data
+```
 
 重要輸出：
+
+```text
 experiments/semantic_bge/embeddings.npy
 experiments/semantic_bge/logreg_c10/promise_status.npz
-
+```
 
 `.npz` 內容：
+
+```text
 key: target
 shape: (測試資料筆數, 2)
+```
 
 ### 7.5 Lexical TF-IDF
 
 位置：
+
+```text
 src/training/pipeline.py::train_lexical_tfidf
+```
 
 用途：
+
 - 使用 character TF-IDF + LinearSVC
 - 補強 `evidence_status`
 - 補強 `verification_timeline`
 
 `.npz` 內容：
+
+```text
 key: target
 shape: (測試資料筆數, 該任務類別數)
+```
 
 ### 7.6 預測
 
 入口：
+
+```text
 src/inference/predict.py
+```
 
 輸入：
+
+```text
 Data/vpesg4k_test_2000.csv
 experiments/ 內的 artifacts/cache
 config/inference.yaml
+```
 
 輸出：
+
+```text
 outputs/promise_verification_submission.csv
+```
 
 ## 8. 最終融合規則
 
 第一層 baseline：
+
+```text
 dual_source_baseline = 0.8 * full_data_branch + 0.2 * train_only_branch
+```
 
 第二層 final blend：
+
 | Task | Dual-source baseline | Semantic multitask | Extra |
+|---|---:|---:|---|
 | `promise_status` | 0.60 | 0.25 | 0.15 BGE |
 | `evidence_status` | 0.60 | 0.05 | 0.35 TF-IDF |
 | `evidence_quality` | 1.00 | 0.00 | 0.00 |
@@ -256,36 +332,55 @@ dual_source_baseline = 0.8 * full_data_branch + 0.2 * train_only_branch
 融合後再經過競賽邏輯規則產生最終類別。
 
 ## 9. 完整訓練
+
 完整訓練並產生 submission：
+
+```powershell
 python -m src.training.train --config config/train.yaml --stage all --force
+```
 
 若只想補缺失 artifact，不強制重訓已存在結果：
+
+```powershell
 python -m src.training.train --config config/train.yaml --stage all
+```
 
 分段重訓：
+
+```powershell
 python -m src.training.train --stage prepare-baseline --force
 python -m src.training.train --stage semantic-multitask --force
 python -m src.training.train --stage semantic-bge --force
 python -m src.training.train --stage lexical-tfidf --force
+```
 
 ## 10. 重現既有結果
+
 若 `experiments/` 內 artifacts 已存在，可直接執行：
+
+```powershell
 python -m src.inference.predict --output outputs/reproduce_submission.csv
+```
 
 ## 11. Cache 策略
 
 預測入口會把 `experiments/` 內 `.npz` 視為可選 cache，而不是不可缺少的固定輸入。
 
 策略：
+
 | 策略 | 行為 |
+|---|---|
 | `auto` | 預設。cache 合法就使用；缺失或損壞就重新產生 |
 | `refresh` | 重新產生 prediction artifacts |
 | `off` | 與 `refresh` 相同，保證不依賴既有 cache |
 
 執行：
+
+```powershell
 python -m src.inference.predict --cache-policy auto
 python -m src.inference.predict --cache-policy refresh
 python -m src.inference.predict --cache-policy off
+```
 
 cache 驗證項目：
 

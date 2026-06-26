@@ -27,6 +27,7 @@ id,promise_status,verification_timeline,evidence_status,evidence_quality
 
 ## 2. 專案結構
 
+```text
 project_root/
 ├─ config/                         YAML 設定檔
 ├─ Data/                           競賽資料，需由使用者自行放入
@@ -44,6 +45,7 @@ project_root/
 ├─ requirements.txt
 ├─ .env.example
 └─ README.md
+```
 
 ## 3. 環境需求
 
@@ -291,4 +293,3 @@ cache 驗證項目：
 - `.npz` 欄位存在
 - shape 與測試資料筆數、類別數一致
 - 數值不是 NaN 或 infinity
-
